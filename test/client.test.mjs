@@ -69,8 +69,14 @@ test("HTTP errors map to typed codes: 401, 429 with Retry-After, 413, 502 with t
 test("network failures and timeouts are reported as reseau", async () => {
   const down = new MaFactureOK({ cle: KEY, fetch: async () => { throw new TypeError("fetch failed"); } });
   await assert.rejects(down.moi(), (e) => e.code === "reseau" && e.cause instanceof TypeError);
-  const slow = new MaFactureOK({ cle: KEY, timeoutMs: 20, fetch: (_url, init) => new Promise((_, reject) => init.signal.addEventListener("abort", () => reject(init.signal.reason))) });
-  await assert.rejects(slow.moi(), (e) => e.code === "reseau" && /20 ms/.test(e.message));
+  // AbortSignal.timeout runs on an unreferenced timer (Node 20/22): keep the loop alive until it fires.
+  const keepAlive = setTimeout(() => {}, 5_000);
+  try {
+    const slow = new MaFactureOK({ cle: KEY, timeoutMs: 20, fetch: (_url, init) => new Promise((_, reject) => init.signal.addEventListener("abort", () => reject(init.signal.reason))) });
+    await assert.rejects(slow.moi(), (e) => e.code === "reseau" && /20 ms/.test(e.message));
+  } finally {
+    clearTimeout(keepAlive);
+  }
 });
 
 test("verifierTiers posts JSON and moi is a GET without body", async () => {
