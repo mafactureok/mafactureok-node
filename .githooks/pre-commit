@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Pre-commit checks (bash 3.2 compatible):
+#   1. the commit is authored by the project identity, never a personal one;
+#   2. nothing shaped like a live API key is staged;
+#   3. the staged TypeScript still type-checks.
+# The message rules live in commit-msg.
+set -uo pipefail
+EXPECTED_EMAIL="contact@mafactureok.com"
+ACTUAL_EMAIL=$(git config user.email || true)
+if [ "$ACTUAL_EMAIL" != "$EXPECTED_EMAIL" ]; then
+  echo "pre-commit: commits must be authored as $EXPECTED_EMAIL (got '${ACTUAL_EMAIL:-unset}')." >&2
+  echo "           git config user.email $EXPECTED_EMAIL" >&2
+  exit 1
+fi
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$STAGED" ] && exit 0
+if printf '%s\n' "$STAGED" | xargs grep -nE 'mfok_live_[A-Za-z0-9]{24,}' 2>/dev/null; then
+  echo "pre-commit: a value shaped like a live API key is staged. Remove it." >&2
+  exit 1
+fi
+if printf '%s\n' "$STAGED" | grep -qE '^(src|test)/.*\.(ts|mjs)$|^package\.json$|^tsconfig\.json$'; then
+  if [ -d node_modules ]; then
+    npm run --silent typecheck || { echo "pre-commit: typecheck failed." >&2; exit 1; }
+  else
+    echo "pre-commit: node_modules missing, typecheck skipped (run npm install)." >&2
+  fi
+fi
+exit 0

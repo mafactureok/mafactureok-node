@@ -1,0 +1,74 @@
+{
+  "version": "1.0",
+  "verifie_le": "2026-10-08T20:02:03.951Z",
+  "verdict": "invalide",
+  "titre": "Facture invalide",
+  "description": "1 erreur dans le fichier empêche l’acceptation de la facture. Consultez les points rouges avant d’accepter ou de transmettre cette facture.",
+  "referentiels": [
+    {
+      "nom": "FNFE France RFE",
+      "version": "1.4.0.03"
+    },
+    {
+      "nom": "EN 16931",
+      "version": "FNFE 1.4.0.03 (XSLT)"
+    },
+    {
+      "nom": "CII",
+      "version": "D22B"
+    }
+  ],
+  "points": [
+    {
+      "ton": "error",
+      "titre": "Fichier à corriger",
+      "details": [
+        "1 erreur empêche l’acceptation de la facture."
+      ]
+    },
+    {
+      "ton": "warning",
+      "titre": "Vérification des entreprises indisponible",
+      "details": [
+        "Les services officiels de vérification sont indisponibles. Réessayez plus tard."
+      ]
+    }
+  ],
+  "anomalies": [
+    {
+      "gravite": "bloquante",
+      "titre": "Montant à payer incohérent avec les totaux",
+      "sens": "Le montant à payer ne correspond pas au total TTC, après déduction des sommes déjà payées et prise en compte de l’arrondi.",
+      "correction": "Valeur attendue pour BT-115 d’après les données de la facture ; reportez-la dans votre logiciel ou corrigez les montants qui la composent.",
+      "ou": "Totaux et TVA",
+      "regles": [
+        "BR-CO-16"
+      ],
+      "valeur_proposee": "1200.00 EUR"
+    },
+    {
+      "gravite": "information",
+      "titre": "Option « TVA d’après les débits » non indiquée",
+      "sens": "La facture ne permet pas de savoir si vous avez choisi l’option « TVA d’après les débits ». Si vous utilisez cette option, la mention est obligatoire.",
+      "correction": "Si vous avez choisi cette option, activez la mention correspondante dans votre logiciel. Sinon, aucune action n’est nécessaire.",
+      "ou": "En-tête de la facture",
+      "regles": [
+        "MFO-02"
+      ]
+    },
+    {
+      "gravite": "information",
+      "titre": "Éco-participation non mentionnée",
+      "sens": "Aucune mention d’éco-participation (code BLU) n’est présente. Si des produits soumis à une éco-contribution sont facturés, cette mention devient attendue (vague PME, septembre 2027).",
+      "correction": "Si la facture comporte des produits soumis à éco-participation, ajoutez la mention correspondante (note code BLU ou ligne dédiée). Sinon, aucune action n’est requise.",
+      "ou": "En-tête de la facture",
+      "regles": [
+        "MFO-04"
+      ]
+    }
+  ],
+  "duree_ms": 430,
+  "synthese": "Facture invalide : 1 erreur dans le fichier : le montant à payer.",
+  "format": "CII D22B",
+  "profil": "EN16931"
+}

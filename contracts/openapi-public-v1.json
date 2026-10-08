@@ -1,0 +1,792 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MaFactureOK : API publique v1",
+    "version": "1.0",
+    "summary": "Pre-controle de factures electroniques francaises (Factur-X, UBL, CII) et verification de tiers (SIREN, SIRET, TVA).",
+    "description": "Cle gratuite demandee par email sur https://mafactureok.com/api. En-tete : Authorization: Bearer mfok_live_... La cle est facultative sur valider-facture (quotas du site sans cle, quota par cle avec), requise sur verifier-tiers et moi. Les factures sont analysees puis supprimees, jamais journalisees. SDK Node.js : https://github.com/mafactureok/mafactureok-node",
+    "contact": {
+      "name": "Support MaFactureOK",
+      "email": "support@mafactureok.com",
+      "url": "https://mafactureok.com/api"
+    },
+    "termsOfService": "https://mafactureok.com/mentions-legales"
+  },
+  "servers": [
+    {
+      "url": "https://mafactureok.com/api/public/v1"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "cle": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Cle mfok_live_... recue par email."
+      }
+    },
+    "headers": {
+      "Retry-After": {
+        "description": "Secondes a attendre avant de relancer.",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "X-Quota-Limit": {
+        "description": "Validations par jour pour cette cle.",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "X-Quota-Remaining": {
+        "description": "Validations restantes aujourd'hui pour cette cle.",
+        "schema": {
+          "type": "integer"
+        }
+      }
+    },
+    "schemas": {
+      "Erreur": {
+        "type": "object",
+        "required": [
+          "erreur"
+        ],
+        "properties": {
+          "erreur": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ValiderFactureDigest": {
+        "title": "ValiderFactureDigest v1",
+        "description": "Rapport de validation d'une facture electronique, pre-digere en francais, tel que renvoye par POST /api/public/v1/valider-facture. Contrat versionne et fige : un changement cassant passera par /v2/.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "verifie_le",
+          "verdict",
+          "titre",
+          "description",
+          "referentiels",
+          "points",
+          "anomalies",
+          "duree_ms"
+        ],
+        "properties": {
+          "version": {
+            "const": "1.0"
+          },
+          "verifie_le": {
+            "type": "string",
+            "description": "Horodatage ISO 8601 (UTC) de la verification."
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "valide",
+              "a_verifier",
+              "invalide",
+              "non_analyse"
+            ]
+          },
+          "titre": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "synthese": {
+            "type": "string"
+          },
+          "motif_non_analyse": {
+            "type": "string",
+            "description": "Present quand verdict = non_analyse : pourquoi le fichier n'a pas pu etre analyse."
+          },
+          "format": {
+            "type": "string",
+            "description": "Factur-X, UBL 2.1 ou CII D22B."
+          },
+          "profil": {
+            "type": "string",
+            "description": "Profil detecte, par exemple EN16931."
+          },
+          "referentiels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "nom",
+                "version"
+              ],
+              "properties": {
+                "nom": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "ton",
+                "titre",
+                "details"
+              ],
+              "properties": {
+                "ton": {
+                  "type": "string",
+                  "enum": [
+                    "success",
+                    "warning",
+                    "error"
+                  ]
+                },
+                "titre": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "anomalies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "gravite",
+                "titre",
+                "sens",
+                "correction",
+                "ou",
+                "regles"
+              ],
+              "properties": {
+                "gravite": {
+                  "type": "string",
+                  "enum": [
+                    "bloquante",
+                    "avertissement",
+                    "information"
+                  ]
+                },
+                "titre": {
+                  "type": "string"
+                },
+                "sens": {
+                  "type": "string",
+                  "description": "Ce que l'anomalie signifie, en francais."
+                },
+                "correction": {
+                  "type": "string",
+                  "description": "Ce qu'il faut faire."
+                },
+                "valeur_proposee": {
+                  "type": "string",
+                  "description": "Valeur corrigee derivable, quand elle existe."
+                },
+                "ou": {
+                  "type": "string",
+                  "description": "Emplacement dans le document (terme metier BT/BG ou chemin)."
+                },
+                "regles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Identifiants des regles concernees (BR-*, BR-FR-*, MFO-*)."
+                }
+              }
+            }
+          },
+          "entreprises": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "role",
+                "etat",
+                "signaux",
+                "tva"
+              ],
+              "properties": {
+                "role": {
+                  "type": "string"
+                },
+                "etat": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "avertissement",
+                    "alerte",
+                    "non_verifie"
+                  ]
+                },
+                "signaux": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "nom_officiel": {
+                  "type": "string"
+                },
+                "adresse_officielle": {
+                  "type": "string"
+                },
+                "date_fermeture": {
+                  "type": "string"
+                },
+                "tva": {
+                  "type": "string",
+                  "enum": [
+                    "valide",
+                    "invalide",
+                    "non_verifiee"
+                  ]
+                },
+                "facture_apres_cessation": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "entreprises_non_verifiees": {
+            "type": "string"
+          },
+          "duree_ms": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "VerifierTiersRequete": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "identifiants"
+        ],
+        "properties": {
+          "identifiants": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "description": "SIREN (9 chiffres) ou SIRET (14 chiffres)."
+            }
+          }
+        }
+      },
+      "VerifierTiersResultat": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "identifiant",
+          "existe",
+          "etat",
+          "signal",
+          "action"
+        ],
+        "properties": {
+          "identifiant": {
+            "type": "string"
+          },
+          "existe": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "etat": {
+            "type": "string",
+            "enum": [
+              "actif",
+              "cesse",
+              "inconnu",
+              "etablissement_ferme",
+              "diffusion_restreinte",
+              "non_verifie"
+            ]
+          },
+          "date_cessation": {
+            "type": "string"
+          },
+          "raison_sociale": {
+            "type": "string"
+          },
+          "adresse": {
+            "type": "string"
+          },
+          "siret_siege_actif": {
+            "type": "string"
+          },
+          "tva": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "statut"
+            ],
+            "properties": {
+              "numero": {
+                "type": "string"
+              },
+              "statut": {
+                "type": "string",
+                "enum": [
+                  "valide",
+                  "invalide",
+                  "non_verifie"
+                ]
+              }
+            }
+          },
+          "signal": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "avertissement",
+              "alerte",
+              "indetermine"
+            ],
+            "description": "indetermine est le seul cas ou relancer a un sens."
+          },
+          "action": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "VerifierTiersReponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "verifie_le",
+          "resultats"
+        ],
+        "properties": {
+          "version": {
+            "const": "1.0"
+          },
+          "verifie_le": {
+            "type": "string"
+          },
+          "resultats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerifierTiersResultat"
+            }
+          }
+        }
+      },
+      "DemanderCleRequete": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "consentement_produit": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "Moi": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "plan",
+          "email",
+          "cree_le",
+          "quotas",
+          "usage"
+        ],
+        "properties": {
+          "version": {
+            "const": "1.0"
+          },
+          "plan": {
+            "type": "string",
+            "enum": [
+              "beta"
+            ]
+          },
+          "email": {
+            "type": "string",
+            "description": "Masque : z***@exemple.fr"
+          },
+          "cree_le": {
+            "type": "string"
+          },
+          "quotas": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "validations_par_jour",
+              "identifiants_par_jour",
+              "identifiants_par_appel"
+            ],
+            "properties": {
+              "validations_par_jour": {
+                "type": "integer"
+              },
+              "identifiants_par_jour": {
+                "type": "integer"
+              },
+              "identifiants_par_appel": {
+                "type": "integer"
+              }
+            }
+          },
+          "usage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "total"
+            ],
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "derniere_utilisation": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/valider-facture": {
+      "post": {
+        "operationId": "validerFacture",
+        "summary": "Valider une facture (Factur-X, UBL 2.1, CII D22B)",
+        "description": "Corps binaire : le fichier tel quel. Sans cle : quotas anonymes du site, par reseau. Avec cle : quota quotidien par cle et en-tetes X-Quota-*. Une cle envoyee mais invalide repond 401.",
+        "security": [
+          {},
+          {
+            "cle": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rapport digere.",
+            "headers": {
+              "X-Quota-Limit": {
+                "$ref": "#/components/headers/X-Quota-Limit"
+              },
+              "X-Quota-Remaining": {
+                "$ref": "#/components/headers/X-Quota-Remaining"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValiderFactureDigest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "fichier_vide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "cle_invalide (une cle a ete envoyee mais n'est pas active).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "fichier_trop_grand (15 Mio).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "quota_atteint",
+            "headers": {
+              "Retry-After": {
+                "$ref": "#/components/headers/Retry-After"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "analyse_indisponible : le moteur n'a pas repondu ; `rapport` contient un digest non_analyse.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "erreur",
+                    "rapport"
+                  ],
+                  "properties": {
+                    "erreur": {
+                      "const": "analyse_indisponible"
+                    },
+                    "rapport": {
+                      "$ref": "#/components/schemas/ValiderFactureDigest"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/verifier-tiers": {
+      "post": {
+        "operationId": "verifierTiers",
+        "summary": "Verifier des SIREN ou SIRET au registre officiel et leur TVA",
+        "security": [
+          {
+            "cle": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifierTiersRequete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Un resultat par identifiant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifierTiersReponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "corps_invalide ou identifiant_invalide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "cle_invalide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "trop_identifiants ou corps_trop_grand",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "quota_atteint",
+            "headers": {
+              "Retry-After": {
+                "$ref": "#/components/headers/Retry-After"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "indisponible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/moi": {
+      "get": {
+        "operationId": "moi",
+        "summary": "La cle, ses quotas et son usage (gratuit, hors quota)",
+        "security": [
+          {
+            "cle": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Etat de la cle.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Moi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "cle_invalide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/demander-cle": {
+      "post": {
+        "operationId": "demanderCle",
+        "summary": "Recevoir une cle gratuite par email",
+        "description": "Reponse toujours neutre. 3 demandes par heure et par reseau. Une nouvelle demande pour la meme adresse revoque les cles precedentes.",
+        "security": [
+          {}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemanderCleRequete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Neutre : si l'adresse est valide, la cle est envoyee.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "corps_invalide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "limite_atteinte",
+            "headers": {
+              "Retry-After": {
+                "$ref": "#/components/headers/Retry-After"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "indisponible (envoi d'email impossible)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

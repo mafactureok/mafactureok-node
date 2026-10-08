@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.tgz
+.DS_Store
+.env
+.env.*
+# Invoices live only in examples/factures/ (synthetic set). Never add real ones.
+*.pdf
+*.xml
+!examples/factures/**/*.pdf
+!examples/factures/**/*.xml

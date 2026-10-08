@@ -1,0 +1,16 @@
+#!/bin/sh
+# Commit message policy (owner, 2026-10-08):
+#  - exactly one line, no body, no trailer;
+#  - no mention of Claude / Anthropic / AI co-authorship.
+# Installed by `npm run prepare` (core.hooksPath = .githooks).
+msg_file="$1"
+lines=$(grep -v '^#' "$msg_file" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' | grep -c '')
+if [ "$lines" -gt 1 ]; then
+  echo "commit-msg: one line only (no body, no trailer)." >&2
+  exit 1
+fi
+if grep -v '^#' "$msg_file" | LC_ALL=C grep -qiE 'claude|anthropic|co-authored-by|generated with'; then
+  echo "commit-msg: no AI attribution in commit messages." >&2
+  exit 1
+fi
+exit 0

@@ -1,0 +1,72 @@
+{
+  "name": "@mafactureok/sdk",
+  "version": "0.1.0",
+  "description": "Validate French electronic invoices (Factur-X, UBL 2.1, CII D22B) and check SIREN/SIRET from Node.js or the command line, with the free MaFactureOK API.",
+  "keywords": [
+    "factur-x",
+    "facturx",
+    "zugferd",
+    "ubl",
+    "cii",
+    "en16931",
+    "facture-electronique",
+    "e-invoicing",
+    "facturation-electronique",
+    "france",
+    "siren",
+    "siret",
+    "tva",
+    "cli",
+    "sdk"
+  ],
+  "homepage": "https://mafactureok.com/api",
+  "bugs": "https://github.com/mafactureok/mafactureok-node/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mafactureok/mafactureok-node.git"
+  },
+  "license": "MIT",
+  "author": "MaFactureOK <contact@mafactureok.com>",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "mafactureok": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "contracts",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
+    "build": "rm -rf dist && tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "generate:types": "openapi-typescript contracts/openapi-public-v1.json -o src/generated/openapi.ts",
+    "sync:contract": "node scripts/sync-contract.mjs",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "test:live": "node scripts/live-check.mjs",
+    "check:hygiene": "scripts/check-hygiene.sh",
+    "prepublishOnly": "npm run check:hygiene && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "openapi-typescript": "^7.6.1",
+    "typescript": "^5.5.3"
+  }
+}

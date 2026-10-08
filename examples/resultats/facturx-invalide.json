@@ -1,0 +1,138 @@
+{
+  "version": "1.0",
+  "verifie_le": "2026-10-08T20:02:04.089Z",
+  "verdict": "invalide",
+  "titre": "Facture invalide",
+  "description": "7 erreurs dans le fichier empêchent l’acceptation de la facture. Consultez les points rouges avant d’accepter ou de transmettre cette facture.",
+  "referentiels": [
+    {
+      "nom": "FNFE France RFE",
+      "version": "1.4.0.03"
+    },
+    {
+      "nom": "EN 16931",
+      "version": "FNFE 1.4.0.03 (XSLT)"
+    },
+    {
+      "nom": "Factur-X",
+      "version": "1.09.2"
+    },
+    {
+      "nom": "CII",
+      "version": "D22B"
+    }
+  ],
+  "points": [
+    {
+      "ton": "error",
+      "titre": "Fichier à corriger",
+      "details": [
+        "7 erreurs empêchent l’acceptation de la facture."
+      ]
+    },
+    {
+      "ton": "warning",
+      "titre": "Vérification des entreprises indisponible",
+      "details": [
+        "Les services officiels de vérification sont indisponibles. Réessayez plus tard."
+      ]
+    }
+  ],
+  "anomalies": [
+    {
+      "gravite": "bloquante",
+      "titre": "Aucun identifiant du vendeur",
+      "sens": "Aucun numéro ne permet d’identifier le vendeur. En France, indiquez au minimum son SIREN.",
+      "correction": "Renseignez le SIREN et le numéro de TVA du vendeur dans les paramètres de votre logiciel.",
+      "ou": "Bloc Vendeur",
+      "regles": [
+        "BR-CO-26"
+      ]
+    },
+    {
+      "gravite": "bloquante",
+      "titre": "Total TTC incohérent",
+      "sens": "Le total TTC ne correspond pas au total hors TVA augmenté de la TVA.",
+      "correction": "Valeur attendue pour BT-112 d’après les données de la facture ; reportez-la dans votre logiciel ou corrigez les montants qui la composent.",
+      "ou": "Totaux et TVA",
+      "regles": [
+        "BR-CO-15"
+      ],
+      "valeur_proposee": "720.00 EUR"
+    },
+    {
+      "gravite": "bloquante",
+      "titre": "Numéro de TVA du vendeur manquant",
+      "sens": "La facture contient de la TVA au taux normal, mais le numéro de TVA du vendeur est absent.",
+      "correction": "Renseignez le numéro de TVA intracommunautaire du vendeur dans les paramètres de votre logiciel (ou celui du représentant fiscal s’il y a lieu).",
+      "ou": "Bloc Vendeur",
+      "regles": [
+        "BR-S-02"
+      ]
+    },
+    {
+      "gravite": "bloquante",
+      "titre": "Cadre de facturation manquant ou invalide",
+      "sens": "La facture n’indique pas clairement si elle concerne des biens, des services ou les deux.",
+      "correction": "Dans votre logiciel, choisissez biens, services ou opération mixte selon le contenu de la facture.",
+      "ou": "En-tête de la facture",
+      "regles": [
+        "BR-FR-08_BT-23"
+      ]
+    },
+    {
+      "gravite": "bloquante",
+      "titre": "SIREN du vendeur manquant ou invalide",
+      "sens": "Le SIREN du vendeur est absent ou ne comporte pas exactement 9 chiffres.",
+      "correction": "Renseignez le SIREN du vendeur (9 chiffres) dans les paramètres de l’entreprise, dans le logiciel de facturation.",
+      "ou": "Bloc Vendeur",
+      "regles": [
+        "BR-FR-10_BT-30"
+      ]
+    },
+    {
+      "gravite": "bloquante",
+      "titre": "Adresse électronique de l’acheteur manquante",
+      "sens": "L’identifiant qui permet d’envoyer la facture à la plateforme de l’acheteur est absent.",
+      "correction": "Renseignez l’adresse électronique de facturation sur la fiche du client. En France, elle commence généralement par son SIREN.",
+      "ou": "Bloc Acheteur",
+      "regles": [
+        "BR-FR-12_BT-49"
+      ]
+    },
+    {
+      "gravite": "bloquante",
+      "titre": "Adresse électronique du vendeur manquante",
+      "sens": "L’identifiant électronique du vendeur est absent.",
+      "correction": "Renseignez l’adresse électronique de facturation du vendeur dans les paramètres de l’entreprise, dans le logiciel de facturation.",
+      "ou": "Bloc Vendeur",
+      "regles": [
+        "BR-FR-13_BT-34"
+      ]
+    },
+    {
+      "gravite": "information",
+      "titre": "Option « TVA d’après les débits » non indiquée",
+      "sens": "La facture ne permet pas de savoir si vous avez choisi l’option « TVA d’après les débits ». Si vous utilisez cette option, la mention est obligatoire.",
+      "correction": "Si vous avez choisi cette option, activez la mention correspondante dans votre logiciel. Sinon, aucune action n’est nécessaire.",
+      "ou": "En-tête de la facture",
+      "regles": [
+        "MFO-02"
+      ]
+    },
+    {
+      "gravite": "information",
+      "titre": "Éco-participation non mentionnée",
+      "sens": "Aucune mention d’éco-participation (code BLU) n’est présente. Si des produits soumis à une éco-contribution sont facturés, cette mention devient attendue (vague PME, septembre 2027).",
+      "correction": "Si la facture comporte des produits soumis à éco-participation, ajoutez la mention correspondante (note code BLU ou ligne dédiée). Sinon, aucune action n’est requise.",
+      "ou": "En-tête de la facture",
+      "regles": [
+        "MFO-04"
+      ]
+    }
+  ],
+  "duree_ms": 1840,
+  "synthese": "Facture invalide : 7 erreurs dans le fichier : le SIREN du vendeur, le numéro de TVA du vendeur et l’adresse électronique de facturation du vendeur, et 4 autres points.",
+  "format": "Factur-X",
+  "profil": "EN16931"
+}

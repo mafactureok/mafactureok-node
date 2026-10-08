@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mafactureok.com/api/public/v1/valider-facture.schema.json",
+  "title": "ValiderFactureDigest v1",
+  "description": "Rapport de validation d'une facture electronique, pre-digere en francais, tel que renvoye par POST /api/public/v1/valider-facture. Contrat versionne et fige : un changement cassant passera par /v2/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "verifie_le", "verdict", "titre", "description", "referentiels", "points", "anomalies", "duree_ms"],
+  "properties": {
+    "version": { "const": "1.0" },
+    "verifie_le": { "type": "string", "description": "Horodatage ISO 8601 (UTC) de la verification." },
+    "verdict": { "type": "string", "enum": ["valide", "a_verifier", "invalide", "non_analyse"] },
+    "titre": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "synthese": { "type": "string" },
+    "motif_non_analyse": { "type": "string", "description": "Present quand verdict = non_analyse : pourquoi le fichier n'a pas pu etre analyse." },
+    "format": { "type": "string", "description": "Factur-X, UBL 2.1 ou CII D22B." },
+    "profil": { "type": "string", "description": "Profil detecte, par exemple EN16931." },
+    "referentiels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["nom", "version"],
+        "properties": { "nom": { "type": "string" }, "version": { "type": "string" } }
+      }
+    },
+    "points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ton", "titre", "details"],
+        "properties": {
+          "ton": { "type": "string", "enum": ["success", "warning", "error"] },
+          "titre": { "type": "string" },
+          "details": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "anomalies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gravite", "titre", "sens", "correction", "ou", "regles"],
+        "properties": {
+          "gravite": { "type": "string", "enum": ["bloquante", "avertissement", "information"] },
+          "titre": { "type": "string" },
+          "sens": { "type": "string", "description": "Ce que l'anomalie signifie, en francais." },
+          "correction": { "type": "string", "description": "Ce qu'il faut faire." },
+          "valeur_proposee": { "type": "string", "description": "Valeur corrigee derivable, quand elle existe." },
+          "ou": { "type": "string", "description": "Emplacement dans le document (terme metier BT/BG ou chemin)." },
+          "regles": { "type": "array", "items": { "type": "string" }, "description": "Identifiants des regles concernees (BR-*, BR-FR-*, MFO-*)." }
+        }
+      }
+    },
+    "entreprises": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "etat", "signaux", "tva"],
+        "properties": {
+          "role": { "type": "string" },
+          "etat": { "type": "string", "enum": ["ok", "avertissement", "alerte", "non_verifie"] },
+          "signaux": { "type": "array", "items": { "type": "string" } },
+          "nom_officiel": { "type": "string" },
+          "adresse_officielle": { "type": "string" },
+          "date_fermeture": { "type": "string" },
+          "tva": { "type": "string", "enum": ["valide", "invalide", "non_verifiee"] },
+          "facture_apres_cessation": { "type": "boolean" }
+        }
+      }
+    },
+    "entreprises_non_verifiees": { "type": "string" },
+    "duree_ms": { "type": "integer", "minimum": 0 }
+  }
+}

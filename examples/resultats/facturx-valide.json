@@ -1,0 +1,66 @@
+{
+  "version": "1.0",
+  "verifie_le": "2026-10-08T20:02:03.705Z",
+  "verdict": "a_verifier",
+  "titre": "Vérification incomplète",
+  "description": "Un service officiel est indisponible. Réessayez plus tard pour obtenir un résultat complet.",
+  "referentiels": [
+    {
+      "nom": "FNFE France RFE",
+      "version": "1.4.0.03"
+    },
+    {
+      "nom": "EN 16931",
+      "version": "FNFE 1.4.0.03 (XSLT)"
+    },
+    {
+      "nom": "Factur-X",
+      "version": "1.09.2"
+    },
+    {
+      "nom": "CII",
+      "version": "D22B"
+    }
+  ],
+  "points": [
+    {
+      "ton": "warning",
+      "titre": "Vérification des entreprises indisponible",
+      "details": [
+        "Les services officiels de vérification sont indisponibles. Réessayez plus tard."
+      ]
+    },
+    {
+      "ton": "success",
+      "titre": "Fichier conforme",
+      "details": [
+        "9 contrôles ont été effectués. Aucune erreur bloquante n’a été trouvée."
+      ]
+    }
+  ],
+  "anomalies": [
+    {
+      "gravite": "information",
+      "titre": "Option « TVA d’après les débits » non indiquée",
+      "sens": "La facture ne permet pas de savoir si vous avez choisi l’option « TVA d’après les débits ». Si vous utilisez cette option, la mention est obligatoire.",
+      "correction": "Si vous avez choisi cette option, activez la mention correspondante dans votre logiciel. Sinon, aucune action n’est nécessaire.",
+      "ou": "En-tête de la facture",
+      "regles": [
+        "MFO-02"
+      ]
+    },
+    {
+      "gravite": "information",
+      "titre": "Éco-participation non mentionnée",
+      "sens": "Aucune mention d’éco-participation (code BLU) n’est présente. Si des produits soumis à une éco-contribution sont facturés, cette mention devient attendue (vague PME, septembre 2027).",
+      "correction": "Si la facture comporte des produits soumis à éco-participation, ajoutez la mention correspondante (note code BLU ou ligne dédiée). Sinon, aucune action n’est requise.",
+      "ou": "En-tête de la facture",
+      "regles": [
+        "MFO-04"
+      ]
+    }
+  ],
+  "duree_ms": 1840,
+  "format": "Factur-X",
+  "profil": "EN16931"
+}

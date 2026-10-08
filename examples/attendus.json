@@ -1,0 +1,11 @@
+{
+  "notice": "Expected outcome of each synthetic example on a live instance. 'valide' may come back as 'a_verifier' because the demonstration SIREN/SIRET do not exist at the official registry.",
+  "fichiers": [
+    { "fichier": "valide/ubl-invoice-valid.xml", "format": "UBL 2.1", "verdicts": ["valide", "a_verifier"], "regles_bloquantes": [] },
+    { "fichier": "valide/cii-invoice-valid.xml", "format": "CII D22B", "verdicts": ["valide", "a_verifier"], "regles_bloquantes": [] },
+    { "fichier": "valide/facturx-valide.pdf", "format": "Factur-X", "verdicts": ["valide", "a_verifier"], "regles_bloquantes": [] },
+    { "fichier": "invalide/ubl-invoice-invalid-payable-total.xml", "format": "UBL 2.1", "verdicts": ["invalide"], "regles_bloquantes": ["BR-CO-16"] },
+    { "fichier": "invalide/cii-invoice-invalid-payable-total.xml", "format": "CII D22B", "verdicts": ["invalide"], "regles_bloquantes": ["BR-CO-16"] },
+    { "fichier": "invalide/facturx-invalide.pdf", "format": "Factur-X", "verdicts": ["invalide"], "regles_bloquantes": ["BR-CO-15", "BR-CO-26", "BR-FR-08_BT-23", "BR-FR-10_BT-30", "BR-FR-12_BT-49", "BR-FR-13_BT-34", "BR-S-02"] }
+  ]
+}

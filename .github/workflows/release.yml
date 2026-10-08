@@ -1,0 +1,31 @@
+name: Release
+# Publishes the tagged version to npm with provenance through npm trusted
+# publishing (OIDC): no npm token is stored in the repository. Configure the
+# trusted publisher on npmjs.com (package settings) for this workflow first.
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@latest
+      - run: npm ci
+      - name: Tag matches package.json and src/version.ts
+        run: |
+          v=$(node -p "require('./package.json').version")
+          [ "refs/tags/v$v" = "$GITHUB_REF" ] || { echo "tag $GITHUB_REF != v$v"; exit 1; }
+          grep -q "\"$v\"" src/version.ts || { echo "src/version.ts != $v"; exit 1; }
+      - run: npm test
+      - run: npm run check:hygiene
+      - run: npm publish --provenance --access public
