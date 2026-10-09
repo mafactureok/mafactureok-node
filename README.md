@@ -24,6 +24,7 @@ Une clé d'API gratuite, une ligne de commande, un rapport en français avec la 
 
 ## Sommaire
 
+- [MaFactureOK, le produit : tout ce que fait le service](#mafactureok-le-produit--tout-ce-que-fait-le-service)
 - [Pourquoi valider une facture électronique avant de l'envoyer](#pourquoi-valider-une-facture-électronique-avant-de-lenvoyer)
 - [Valider une facture Factur-X en une ligne de commande](#valider-une-facture-factur-x-en-une-ligne-de-commande)
 - [Installer le SDK Node.js](#installer-le-sdk-nodejs)
@@ -35,6 +36,32 @@ Une clé d'API gratuite, une ligne de commande, un rapport en français avec la 
 - [Exemples de factures Factur-X, UBL et CII](#exemples-de-factures-factur-x-ubl-et-cii)
 - [Questions fréquentes](#questions-fréquentes)
 - [English: Factur-X, UBL and CII invoice validation API for France](#english-factur-x-ubl-and-cii-invoice-validation-api-for-france)
+
+## MaFactureOK, le produit : tout ce que fait le service
+
+[MaFactureOK](https://mafactureok.com) est un service en ligne gratuit, sans compte, qui vérifie une facture
+électronique **en deux temps** : le fichier est-il une facture électronique valide, et l'entreprise qui facture
+existe-t-elle vraiment. Aucune facture n'est conservée. Ce SDK en est la version programmable ; voici l'ensemble du
+produit tel qu'il est utilisable sur le site.
+
+| Besoin | Ce que fait MaFactureOK | Sur le site |
+| --- | --- | --- |
+| **J'ai reçu une facture** | Dépôt du fichier Factur-X, UBL ou CII : verdict, anomalies expliquées en français avec la correction attendue et l'emplacement (BT/BG), puis contrôle du fournisseur au registre officiel (actif, cessé, introuvable, nom et adresse cohérents) et de son numéro de TVA (VIES). | [Vérifier une facture reçue](https://mafactureok.com/facture-recue) |
+| **J'en ai plusieurs** | Lot de factures (jusqu'à 10 fichiers, 60 Mo) avec un rapport de synthèse par lot, exportable. | [Vérifier une facture reçue](https://mafactureok.com/facture-recue) |
+| **Je veux le fichier corrigé** | Quand les corrections sont dérivables (totaux, mentions), MaFactureOK propose le XML corrigé, à revalider avant envoi. Validation et correction restent deux actes distincts. | [Demander une facture corrigée](https://mafactureok.com/facture-recue) |
+| **Je prépare une facture** | Vérifier un client avant de facturer (SIREN, SIRET, TVA intracommunautaire), et la liste de ce que la facture doit contenir : les quatre mentions nouvelles depuis le 1er septembre 2026, les montants tels que l'administration les attend, les mentions légales habituelles. | [Vérifier un client avant de facturer](https://mafactureok.com/preparer-une-facture) |
+| **Tout mon portefeuille clients** | Import d'un export .xlsx ou .csv (lu dans le navigateur) et vérification des identifiants en masse : cessés, introuvables, TVA invalide, à corriger. | [Vérifier un portefeuille clients](https://mafactureok.com/preparer-une-facture) |
+| **Ma facture a été rejetée** | Comprendre le message de rejet, la différence entre rejetée, refusée et en attente, et ce qu'il faut faire (corriger et renvoyer, ou émettre un avoir). | [Facture rejetée : que faire ?](https://mafactureok.com/facture-rejetee) · [Codes de rejet](https://mafactureok.com/codes-rejet) |
+| **Mon PDF n'est pas encore une facture électronique** | Conversion d'un PDF classique en Factur-X : analyse du PDF, brouillon éditable, génération du PDF/A-3 avec XML embarqué, revalidé par le même moteur. | [Convertir un PDF en Factur-X](https://mafactureok.com/pdf-vers-factur-x) |
+| **Un identifiant à vérifier** | Vérification unitaire d'un SIRET ou d'un numéro de TVA intracommunautaire. | [Vérifier un SIRET](https://mafactureok.com/verifier-siret) · [Vérifier une TVA intracommunautaire](https://mafactureok.com/verifier-tva-intracommunautaire) |
+| **Choisir sa plateforme agréée** | La liste officielle des plateformes agréées (ex-PDP) publiée par la DGFiP, consultable par nom et triable par date, avec une fiche par plateforme. | [Plateformes agréées](https://mafactureok.com/plateformes-agreees) |
+| **Comprendre** | Ce que nous vérifions et ce que nous ne vérifions pas, exemples de factures commentés, glossaire de la facture électronique, questions fréquentes, guides du blog (mentions obligatoires 2026, TPE et micro-entreprises, avoirs, piste d'audit fiable, Chorus Pro). | [Ce que nous vérifions](https://mafactureok.com/ce-que-nous-verifions) · [Exemples](https://mafactureok.com/exemples) · [Glossaire](https://mafactureok.com/glossaire) · [FAQ](https://mafactureok.com/faq) · [Blog](https://mafactureok.com/blog) |
+| **Automatiser** | API publique avec clé gratuite, ce SDK Node.js et sa ligne de commande, tutoriel Make et n8n, serveur MCP pour ChatGPT, Claude et les clients compatibles. | [API](https://mafactureok.com/api) · [Make et n8n](https://mafactureok.com/api/tutoriel-make) · [Serveur MCP](https://mafactureok.com/serveur-mcp) |
+
+Ce que MaFactureOK ne fait pas, volontairement : il n'est pas une plateforme agréée et ne transmet aucune
+facture, ne prouve pas la réalité d'une livraison ou d'une prestation, ne détermine pas le taux de TVA applicable à
+une opération, ne vérifie pas la propriété d'un IBAN ni la solvabilité d'un fournisseur, et ne délivre aucune
+certification juridique.
 
 ## Pourquoi valider une facture électronique avant de l'envoyer
 
