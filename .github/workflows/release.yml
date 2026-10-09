@@ -28,4 +28,14 @@ jobs:
           grep -q "\"$v\"" src/version.ts || { echo "src/version.ts != $v"; exit 1; }
       - run: npm test
       - run: npm run check:hygiene
-      - run: npm publish --provenance --access public
+      - name: Already on npm?
+        id: published
+        run: |
+          v=$(node -p "require('./package.json').version")
+          if npm view "@mafactureok/sdk@$v" version >/dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"; echo "@mafactureok/sdk@$v is already published; nothing to do."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.published.outputs.skip == 'false'
+        run: npm publish --provenance --access public
