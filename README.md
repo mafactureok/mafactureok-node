@@ -1,30 +1,58 @@
-# @mafactureok/sdk
+# MaFactureOK SDK : valider une facture électronique (Factur-X, UBL, CII) en Node.js
 
-**[mafactureok.com](https://mafactureok.com)** · [Documentation API](https://mafactureok.com/api) · [Obtenir une clé gratuite](https://mafactureok.com/api) · [Contrat OpenAPI](https://mafactureok.com/api/public/v1/openapi.json) · [Tutoriel Make / n8n](https://mafactureok.com/api/tutoriel-make) · [Serveur MCP](https://mafactureok.com/serveur-mcp) · [Vérifier une facture en ligne](https://mafactureok.com/facture-recue) · [Blog](https://mafactureok.com/blog)
+[![npm](https://img.shields.io/npm/v/%40mafactureok%2Fsdk)](https://www.npmjs.com/package/@mafactureok/sdk)
+[![CI](https://github.com/mafactureok/mafactureok-node/actions/workflows/ci.yml/badge.svg)](https://github.com/mafactureok/mafactureok-node/actions/workflows/ci.yml)
+[![Licence MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+[![Node.js 20+](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org)
 
-**English.** Node.js SDK and command line for [MaFactureOK](https://mafactureok.com), the free
-pre-check of French electronic invoices: Factur-X, UBL 2.1 and CII D22B validated against the
-official FNFE France RFE rules (EN 16931, BR-FR), plus SIREN/SIRET and VAT checks against the
-official registries. One free API key, requested by email on
-[mafactureok.com/api](https://mafactureok.com/api), and one line to validate an invoice. Files
-are analysed then discarded by the service, never stored. The rest of this README is in French,
-like the product; the API itself speaks French (`verdict`, `anomalies`, `correction`).
+SDK Node.js, ligne de commande et exemples open source pour **[MaFactureOK](https://mafactureok.com)**, le
+**validateur gratuit de factures électroniques françaises**. Il contrôle un fichier **Factur-X**, **UBL 2.1** ou
+**CII D22B** contre la norme **EN 16931** et les règles françaises **FNFE France RFE** (BR-FR), puis vérifie les
+entreprises de la facture : **SIREN et SIRET au registre officiel**, **numéro de TVA intracommunautaire** (VIES).
+Une clé d'API gratuite, une ligne de commande, un rapport en français avec la correction de chaque anomalie.
 
----
+**[Site mafactureok.com](https://mafactureok.com)** ·
+[Documentation de l'API](https://mafactureok.com/api) ·
+[Obtenir une clé d'API gratuite](https://mafactureok.com/api) ·
+[Contrat OpenAPI 3.1](https://mafactureok.com/api/public/v1/openapi.json) ·
+[Vérifier une facture électronique en ligne](https://mafactureok.com/facture-recue) ·
+[Vérifier un SIRET](https://mafactureok.com/verifier-siret) ·
+[Vérifier un numéro de TVA intracommunautaire](https://mafactureok.com/verifier-tva-intracommunautaire) ·
+[Codes de rejet des factures électroniques](https://mafactureok.com/codes-rejet) ·
+[Plateformes agréées](https://mafactureok.com/plateformes-agreees) ·
+[Blog facturation électronique](https://mafactureok.com/blog)
 
-SDK Node.js et ligne de commande pour **MaFactureOK**, le pré-contrôle gratuit de factures
-électroniques françaises. Même moteur que le site : XSD, schématrons EN 16931, règles
-françaises BR-FR (référentiel FNFE France RFE 1.4.0.03), conteneur PDF/A-3 pour Factur-X, et
-vérification des entreprises de la facture au registre officiel et auprès de VIES.
+## Sommaire
 
-- Sans dépendance, TypeScript, ESM, Node.js 20 ou plus.
-- Les types sont générés depuis le contrat OpenAPI 3.1 publié par le service
-  (`contracts/openapi-public-v1.json`, aussi servi sur
-  [mafactureok.com/api/public/v1/openapi.json](https://mafactureok.com/api/public/v1/openapi.json)).
-- Six factures d'exemple synthétiques et leurs rapports dans `examples/`.
-- Licence MIT. Le service, lui, reste un service en ligne gratuit en bêta.
+- [Pourquoi valider une facture électronique avant de l'envoyer](#pourquoi-valider-une-facture-électronique-avant-de-lenvoyer)
+- [Valider une facture Factur-X en une ligne de commande](#valider-une-facture-factur-x-en-une-ligne-de-commande)
+- [Installer le SDK Node.js](#installer-le-sdk-nodejs)
+- [Valider une facture depuis TypeScript ou JavaScript](#valider-une-facture-depuis-typescript-ou-javascript)
+- [Vérifier un SIREN, un SIRET ou un numéro de TVA avant de facturer](#vérifier-un-siren-un-siret-ou-un-numéro-de-tva-avant-de-facturer)
+- [Gérer les erreurs et les quotas](#gérer-les-erreurs-et-les-quotas)
+- [Ligne de commande mafactureok](#ligne-de-commande-mafactureok)
+- [Python, curl, Make, n8n : l'API sans SDK](#python-curl-make-n8n--lapi-sans-sdk)
+- [Exemples de factures Factur-X, UBL et CII](#exemples-de-factures-factur-x-ubl-et-cii)
+- [Questions fréquentes](#questions-fréquentes)
+- [English: Factur-X, UBL and CII invoice validation API for France](#english-factur-x-ubl-and-cii-invoice-validation-api-for-france)
 
-## En une ligne
+## Pourquoi valider une facture électronique avant de l'envoyer
+
+La réforme de la **facturation électronique** impose aux entreprises françaises de recevoir, puis d'émettre, des
+factures aux formats structurés Factur-X, UBL ou CII via une **plateforme agréée** (anciennement PDP). Une facture
+mal formée ou incohérente est **rejetée** par la plateforme, avec un [code de rejet](https://mafactureok.com/codes-rejet)
+qu'il faut comprendre, corriger, puis renvoyer. MaFactureOK est un **pré-contrôle technique et métier avant dépôt** :
+il reproduit les contrôles de forme (XSD, schématrons EN 16931, règles BR-FR, conteneur PDF/A-3 pour Factur-X) et y
+ajoute ce que le format seul ne dit pas : le fournisseur existe-t-il, est-il encore actif, son numéro de TVA est-il
+valide. Le service n'est pas une plateforme agréée et ne transmet aucune facture ; il vous dit, avant, ce qui sera
+refusé et comment le corriger. Détail des contrôles :
+[ce que MaFactureOK vérifie](https://mafactureok.com/ce-que-nous-verifions).
+
+Ce dépôt contient le SDK Node.js officiel, la ligne de commande, les types TypeScript générés depuis le
+[contrat OpenAPI](https://mafactureok.com/api/public/v1/openapi.json), six factures d'exemple et leurs rapports.
+Sans dépendance, ESM, Node.js 20 ou plus, licence MIT.
+
+## Valider une facture Factur-X en une ligne de commande
 
 ```bash
 MAFACTUREOK_CLE=mfok_live_votre_cle npx @mafactureok/sdk valider facture.pdf
@@ -40,16 +68,18 @@ facture.pdf : INVALIDE (Facture non conforme)
   quota : 99/100 validations restantes aujourd'hui
 ```
 
-La clé est gratuite et immédiate : saisissez votre email sur
-[mafactureok.com/api](https://mafactureok.com/api), elle arrive par email et reste stable.
+La clé d'API est **gratuite et immédiate** : saisissez votre email sur
+[mafactureok.com/api](https://mafactureok.com/api), elle arrive par email et reste stable. Le fichier est analysé
+puis supprimé par le service, jamais conservé ni journalisé
+([politique de confidentialité](https://mafactureok.com/confidentialite)).
 
-## Installation
+## Installer le SDK Node.js
 
 ```bash
 npm install @mafactureok/sdk
 ```
 
-## Utilisation
+## Valider une facture depuis TypeScript ou JavaScript
 
 ```ts
 import { MaFactureOK, MaFactureOKError } from "@mafactureok/sdk";
@@ -61,29 +91,44 @@ const rapport = await client.valider(await readFile("facture.pdf"));
 // ou : await client.valider({ chemin: "facture.pdf" }) ; un Blob ou un ArrayBuffer conviennent aussi
 console.log(rapport.verdict);              // "valide" | "a_verifier" | "invalide" | "non_analyse"
 for (const a of rapport.anomalies) {
-  console.log(a.gravite, a.titre, a.ou, a.correction, a.regles);
+  console.log(a.gravite, a.titre, a.ou, a.correction, a.regles);   // ex. "bloquante", …, "BT-115", …, ["BR-CO-16"]
 }
 for (const e of rapport.entreprises ?? []) {
-  console.log(e.role, e.etat, e.tva, e.signaux);
+  console.log(e.role, e.etat, e.tva, e.signaux);                   // registre officiel + VIES
 }
 console.log(rapport.quota);                // { limite: 100, restant: 99 }
 ```
 
-Les trois méthodes :
+Le rapport (`ValiderFactureDigest`) est le même que celui du site, sous forme de données : verdict, titre et
+description en français, format et profil détectés, référentiels appliqués (FNFE France RFE 1.4.0.03, EN 16931,
+Factur-X 1.09.2, UBL 2.1, CII D22B), anomalies avec gravité, sens, correction, valeur proposée, emplacement
+(terme métier BT/BG) et règles concernées, état des entreprises. Schéma JSON :
+`contracts/valider-facture-v1.schema.json`.
 
-| Méthode | Endpoint | Ce qu'elle renvoie |
-| --- | --- | --- |
-| `valider(fichier)` | `POST /api/public/v1/valider-facture` | le rapport digéré (`ValiderFactureDigest`) et le quota restant |
-| `verifierTiers(identifiants)` | `POST /api/public/v1/verifier-tiers` | un résultat par SIREN/SIRET : état, raison sociale, adresse, TVA, `signal` à router |
-| `moi()` | `GET /api/public/v1/moi` | le plan, les quotas et l'usage de la clé (hors quota) |
+## Vérifier un SIREN, un SIRET ou un numéro de TVA avant de facturer
 
-### Erreurs
+```ts
+const { resultats } = await client.verifierTiers(["456500537", "897865184"]);
+for (const r of resultats) {
+  // r.signal : "ok" | "avertissement" | "alerte" | "indetermine" ; r.etat : actif, cesse, inconnu, …
+  console.log(r.identifiant, r.signal, r.etat, r.raison_sociale, r.tva?.statut, r.action);
+}
+```
+
+Chaque identifiant revient avec son existence au registre officiel, son état (actif, cessé, établissement fermé,
+diffusion restreinte), la raison sociale et l'adresse officielles, le numéro de TVA et son statut VIES, et un
+`signal` prêt à router dans une automatisation. `indetermine` est le seul cas où relancer a un sens. Les mêmes
+vérifications existent en ligne : [vérifier un SIRET](https://mafactureok.com/verifier-siret),
+[vérifier une TVA intracommunautaire](https://mafactureok.com/verifier-tva-intracommunautaire),
+[vérifier un client avant de facturer](https://mafactureok.com/preparer-une-facture).
+
+## Gérer les erreurs et les quotas
 
 Toute réponse hors contrat lève une `MaFactureOKError` dont `code` dit ce qui s'est passé :
 
 | `code` | Quand | À faire |
 | --- | --- | --- |
-| `cle_invalide` | clé absente, mal formée, révoquée ou inconnue (HTTP 401) | vérifier la clé ; en redemander une sur `/api` |
+| `cle_invalide` | clé absente, mal formée, révoquée ou inconnue (HTTP 401) | vérifier la clé ; en redemander une sur [/api](https://mafactureok.com/api) |
 | `quota_atteint` | quota du jour épuisé (429) | attendre `retryAfterSeconds` |
 | `fichier_trop_grand` | plus de 15 Mo (413) | |
 | `fichier_vide` | corps vide (400) | |
@@ -91,11 +136,12 @@ Toute réponse hors contrat lève une `MaFactureOKError` dont `code` dit ce qui 
 | `reseau` | pas de réponse HTTP (DNS, connexion, délai `timeoutMs`, abandon) | relancer |
 | `reponse_inattendue` | une réponse que le contrat ne décrit pas | ouvrir une issue |
 
-Règle du retry : relancez sur `quota_atteint` (en respectant `retryAfterSeconds`), `reseau` et
-`analyse_indisponible`. Un verdict `invalide` ou `a_verifier` décrit le fond : réessayer ne le
-changera pas.
+Quotas de la bêta gratuite : 100 validations et 200 identifiants vérifiés par jour et par clé, lisibles à tout
+moment avec `client.moi()` (hors quota) et dans les en-têtes `x-quota-limit` / `x-quota-remaining`. Règle du
+retry : relancez sur `quota_atteint` (en respectant `retryAfterSeconds`), `reseau` et `analyse_indisponible` ; un
+verdict `invalide` ou `a_verifier` décrit le fond, réessayer ne le changera pas.
 
-### Options
+Options du client :
 
 ```ts
 new MaFactureOK({
@@ -107,51 +153,82 @@ new MaFactureOK({
 await client.valider(fichier, { signal: AbortSignal.timeout(10_000) });
 ```
 
-## Ligne de commande
+## Ligne de commande mafactureok
 
 ```bash
 mafactureok valider facture.pdf autre.xml     # un rapport lisible par fichier
-mafactureok valider facture.pdf --json         # une ligne JSON par fichier
+mafactureok valider facture.pdf --json         # une ligne JSON par fichier, pour vos scripts
 mafactureok tiers 456500537 897865184          # SIREN ou SIRET
 mafactureok moi                                # plan, quotas, usage
 ```
 
-La clé vient de `--cle` ou de la variable `MAFACTUREOK_CLE`. Codes de sortie de `valider` :
-0 valide, 1 a_verifier, 2 invalide, 3 non_analyse, 4 erreur (le pire des fichiers), pratiques
-dans un script ou une CI.
+La clé vient de `--cle` ou de la variable `MAFACTUREOK_CLE`. Codes de sortie de `valider` : 0 valide,
+1 a_verifier, 2 invalide, 3 non_analyse, 4 erreur (le pire des fichiers), pratiques dans un script, un hook de
+pré-envoi ou une intégration continue.
 
-## Python, curl, Make, n8n
+## Python, curl, Make, n8n : l'API sans SDK
 
-Pas besoin du SDK : l'API est un simple POST du fichier. `examples/python/valider.py` le fait
-avec `requests` en quinze lignes, `examples/curl.sh` avec curl, et
-[mafactureok.com/api/tutoriel-make](https://mafactureok.com/api/tutoriel-make) montre le nœud
-HTTP de Make. Le contrat OpenAPI permet de générer un client dans n'importe quel langage.
+L'API est un simple POST du fichier avec l'en-tête `Authorization: Bearer`. `examples/python/valider.py` le fait
+avec `requests` en quinze lignes, `examples/curl.sh` avec curl, et le
+[tutoriel Make et n8n](https://mafactureok.com/api/tutoriel-make) montre le nœud HTTP pas à pas. Le contrat OpenAPI
+permet de générer un client dans n'importe quel langage. Pour ChatGPT, Claude et les clients compatibles, le
+[serveur MCP de MaFactureOK](https://mafactureok.com/serveur-mcp) expose les mêmes vérifications sans clé.
 
-## Exemples et vérification continue
+## Exemples de factures Factur-X, UBL et CII
 
-`examples/factures/` contient six factures entièrement synthétiques (trois valides, trois
-invalides avec une mutation volontaire chacune) et `examples/resultats/` leurs rapports produits
-par le moteur réel. `node scripts/live-check.mjs` rejoue les six sur l'instance en production
-et compare verdicts et règles bloquantes à `examples/attendus.json` ; le workflow
-`contract-live.yml` le fait chaque semaine.
+`examples/factures/` contient six factures entièrement synthétiques, trois valides et trois invalides avec une
+mutation volontaire chacune (BR-CO-16, mentions BR-FR manquantes, total TTC faux), et `examples/resultats/` leurs
+rapports produits par le moteur réel. `node scripts/live-check.mjs` rejoue les six sur l'instance en production
+et compare verdicts et règles bloquantes à `examples/attendus.json` ; le workflow `contract-live.yml` le fait
+chaque semaine. D'autres exemples commentés sont sur le site :
+[exemples de factures électroniques](https://mafactureok.com/exemples).
 
-## Ce que le service fait et ne fait pas
+## Questions fréquentes
 
-MaFactureOK est un pré-contrôle technique et métier avant dépôt : il n'est pas une plateforme
-agréée, ne transmet aucune facture, ne prouve pas la réalité d'une prestation, ne détermine pas
-le taux de TVA applicable et ne délivre aucune certification juridique. Confidentialité :
-[mafactureok.com/confidentialite](https://mafactureok.com/confidentialite).
+**MaFactureOK est-il une plateforme agréée ?** Non. C'est un pré-contrôle avant dépôt : il ne transmet aucune
+facture et ne remplace pas la [plateforme agréée](https://mafactureok.com/plateformes-agreees) que vous choisissez.
 
-## Le service en ligne
+**Quels formats de facture électronique sont acceptés ?** Factur-X (PDF/A-3 avec XML CII embarqué, profils
+EN16931 et au-delà), UBL 2.1 et CII D22B en XML natif. ZUGFeRD étant le jumeau allemand de Factur-X, un fichier
+ZUGFeRD est lu de la même façon ; seules les règles françaises BR-FR lui seront spécifiques.
 
-Tout ce que fait le SDK existe aussi sur le site, sans compte ni clé :
+**Quelles règles sont vérifiées ?** Les schémas XSD, les schématrons EN 16931, les règles françaises FNFE France
+RFE (BR-FR, référentiel 1.4.0.03 épinglé), la conformité PDF/A-3 du conteneur Factur-X, puis les contrôles
+d'entreprise (registre officiel, VIES). Liste détaillée : [ce que nous vérifions](https://mafactureok.com/ce-que-nous-verifions).
 
-- [Vérifier une facture reçue](https://mafactureok.com/facture-recue) : dépôt d'un fichier, rapport en français.
-- [Vérifier un client avant de facturer](https://mafactureok.com/preparer-une-facture) : SIREN, SIRET, TVA.
-- [Comprendre un rejet](https://mafactureok.com/facture-rejetee) et les [codes de rejet](https://mafactureok.com/codes-rejet).
-- [Convertir un PDF en Factur-X](https://mafactureok.com/pdf-vers-factur-x).
-- [Ce que nous vérifions](https://mafactureok.com/ce-que-nous-verifions), [exemples de factures](https://mafactureok.com/exemples), [glossaire](https://mafactureok.com/glossaire), [FAQ](https://mafactureok.com/faq).
-- [Serveur MCP](https://mafactureok.com/serveur-mcp) pour ChatGPT, Claude et les clients compatibles.
+**Que signifie le code de rejet que j'ai reçu ?** Le site explique chaque code et la règle BR associée :
+[codes de rejet](https://mafactureok.com/codes-rejet), et la page
+[comprendre un rejet de facture](https://mafactureok.com/facture-rejetee).
+
+**Mes factures sont-elles conservées ?** Non. Le fichier est analysé puis supprimé, il n'est ni stocké ni
+journalisé. Seuls un compteur d'usage et la date de dernière utilisation sont associés à la clé.
+[Politique de confidentialité](https://mafactureok.com/confidentialite).
+
+**Combien ça coûte ?** Le service est gratuit en bêta, avec les quotas indiqués plus haut.
+
+**Puis-je convertir un PDF classique en Factur-X ?** Oui, en ligne :
+[convertir un PDF en Factur-X](https://mafactureok.com/pdf-vers-factur-x).
+
+**Et les nouvelles mentions obligatoires ?** Le [blog](https://mafactureok.com/blog) suit la réforme : mentions
+obligatoires 2026, facture électronique pour les TPE et micro-entreprises, avoirs, piste d'audit fiable.
+
+## English: Factur-X, UBL and CII invoice validation API for France
+
+**MaFactureOK** is a free online **e-invoicing validator for France**. This repository is its official
+**Node.js SDK and CLI**: validate a **Factur-X** (ZUGFeRD-compatible), **UBL 2.1** or **CII D22B** invoice against
+**EN 16931** and the French **FNFE France RFE** business rules (BR-FR), check the PDF/A-3 container, and verify
+the companies on the invoice against the official French business registry (**SIREN / SIRET**) and **VIES VAT**
+validation. One free API key, one command, a structured report that names every failing rule (`BR-CO-16`,
+`BR-FR-10`, …) with its business term (`BT-115`) and the fix. The service analyses the file and discards it;
+nothing is stored. It is a pre-submission check, not an accredited platform (PDP).
+
+```bash
+MAFACTUREOK_CLE=mfok_live_your_key npx @mafactureok/sdk valider invoice.pdf
+```
+
+The API and its reports are in French (`verdict`, `anomalies`, `correction`), the types are generated from the
+[OpenAPI 3.1 contract](https://mafactureok.com/api/public/v1/openapi.json). Get a key and read the docs at
+[mafactureok.com/api](https://mafactureok.com/api).
 
 ## Contribuer
 
