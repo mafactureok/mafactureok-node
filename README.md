@@ -1,5 +1,7 @@
 # @mafactureok/sdk
 
+**[mafactureok.com](https://mafactureok.com)** · [Documentation API](https://mafactureok.com/api) · [Obtenir une clé gratuite](https://mafactureok.com/api) · [Contrat OpenAPI](https://mafactureok.com/api/public/v1/openapi.json) · [Tutoriel Make / n8n](https://mafactureok.com/api/tutoriel-make) · [Serveur MCP](https://mafactureok.com/serveur-mcp) · [Vérifier une facture en ligne](https://mafactureok.com/facture-recue) · [Blog](https://mafactureok.com/blog)
+
 **English.** Node.js SDK and command line for [MaFactureOK](https://mafactureok.com), the free
 pre-check of French electronic invoices: Factur-X, UBL 2.1 and CII D22B validated against the
 official FNFE France RFE rules (EN 16931, BR-FR), plus SIREN/SIRET and VAT checks against the
@@ -139,6 +141,17 @@ MaFactureOK est un pré-contrôle technique et métier avant dépôt : il n'est 
 agréée, ne transmet aucune facture, ne prouve pas la réalité d'une prestation, ne détermine pas
 le taux de TVA applicable et ne délivre aucune certification juridique. Confidentialité :
 [mafactureok.com/confidentialite](https://mafactureok.com/confidentialite).
+
+## Le service en ligne
+
+Tout ce que fait le SDK existe aussi sur le site, sans compte ni clé :
+
+- [Vérifier une facture reçue](https://mafactureok.com/facture-recue) : dépôt d'un fichier, rapport en français.
+- [Vérifier un client avant de facturer](https://mafactureok.com/preparer-une-facture) : SIREN, SIRET, TVA.
+- [Comprendre un rejet](https://mafactureok.com/facture-rejetee) et les [codes de rejet](https://mafactureok.com/codes-rejet).
+- [Convertir un PDF en Factur-X](https://mafactureok.com/pdf-vers-factur-x).
+- [Ce que nous vérifions](https://mafactureok.com/ce-que-nous-verifions), [exemples de factures](https://mafactureok.com/exemples), [glossaire](https://mafactureok.com/glossaire), [FAQ](https://mafactureok.com/faq).
+- [Serveur MCP](https://mafactureok.com/serveur-mcp) pour ChatGPT, Claude et les clients compatibles.
 
 ## Contribuer
 
