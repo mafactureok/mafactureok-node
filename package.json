@@ -1,6 +1,6 @@
 {
   "name": "@mafactureok/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Validate French electronic invoices (Factur-X, UBL 2.1, CII D22B) against EN 16931 and FNFE BR-FR rules, and check SIREN/SIRET and VAT numbers, from Node.js or the command line with the free MaFactureOK API.",
   "keywords": [
     "factur-x",
